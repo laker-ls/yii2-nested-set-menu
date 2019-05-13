@@ -1,0 +1,25 @@
+{
+    "name": "laker-ls/yii2-nested-set-menu",
+    "description": "Widget creates a menu from nesting set tree.",
+    "keywords": ["yii2", "extension", "widget"],
+    "homepage": "https://github.com/laker-ls/nested-set-menu",
+    "type": "yii2-extension",
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Владислав Сусып",
+            "email": "vladislav_susyp@bk.ru",
+            "homepage": "https://github.com/laker-ls"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "lakerLS\\nestedSet\\": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
