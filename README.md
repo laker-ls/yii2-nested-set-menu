@@ -20,13 +20,13 @@
 Для установки запустите
 
 ```
-$ php composer.phar require laker-ls/yii2-nested-set-menu "~1.0.0"
+$ php composer.phar require laker-ls/yii2-nested-set-menu "~1.1.0"
 ```
 
 или добавьте в `composer.json` в раздел `require` следующую строку
 
 ```
-"laker-ls/yii2-nested-set-menu": "~1.0.0"
+"laker-ls/yii2-nested-set-menu": "~1.1.0"
 ```
 
 > Смотрите [список изменений](https://github.com/laker-ls/yii2-nested-set-menu/blob/master/CHANGE.md) для подробной информации о версиях.
@@ -40,29 +40,35 @@ $ php composer.phar require laker-ls/yii2-nested-set-menu "~1.0.0"
 
 ```php
 use lakerLS\nestedSet\Menu;
-
+           
 echo Menu::widget([
-                    'allCategories' => $сategory,
+    'allCategories' => $allCategory,
 
-                    'UL_all' => 'nav navbar-nav navbar-right',
-                    'UL_nested_one' => 'dropdown-menu',
-                    'UL_nested_more' => 'dropdown-menu',
-
-                    'LI_lonely_main' => false,
-                    'A_lonely_main' => 'border',
-
-                    'LI_has_nesting_main' => 'dropdown',
-                    'A_has_nesting_main' => 'dropdown-toggle border',
-
-                    'LI_lonely' => false,
-                    'A_lonely' => false,
-
-                    'LI_has_nesting' => 'dropdown',
-                    'A_has_nesting' => 'dropdown-toggle',
-
-                    'LI_active_main' => 'active',
-                    'LI_active' => 'activeNestedMenu',
-                ]);
+    'UL_all' => [
+        'class' => 'sf-menu clearfix unstyled-all',
+        'id' => 'header-navigation',
+    ],
+    'UL_nested_one' => [
+        'class' => 'sub-menu',
+        'style' => 'display: none',
+    ],
+    'UL_nested_more' => [
+        'class' => 'sub-menu',
+        'style' => 'display: none',
+    ],
+    'LI_lonely_main' => [
+        'class' => 'menu-item',
+    ],
+    'LI_has_nesting_main' => [
+        'class' => 'menu-item menu-item-type',
+    ],
+    'LI_lonely' => [
+        'class' => 'menu-item-type-post_type',
+    ],
+    'A_lonely' => [
+            'class' => 'sf-with-ul',
+    ],
+]);
 ```
 
 ## Лицензия
