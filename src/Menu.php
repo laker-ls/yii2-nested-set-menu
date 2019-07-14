@@ -60,8 +60,13 @@ class Menu extends Widget
     // всё остальное будет наследовано от $LI_has_nesting.
     public $LI_active = [];
 
-    // Добавить иконку к пункту меню, который имеет вложенность.
-    public $A_icon_in_name = 'ui--caret fontawesome-angle-down px18';
+    // Добавить иконку к корневому пункту меню, который имеет вложенности.
+    // Необходимо передать строкой классы иконки.
+    public $A_icon_has_nesting_main = '';
+
+    // Добавить иконку к вложенному пункту меню, который так же имеет вложенности.
+    // Необходимо передать строкой классы иконки.
+    public $A_icon_has_nesting = '';
 
     /**
      * Вывод пунктов меню.
@@ -119,34 +124,49 @@ class Menu extends Widget
     /**
      * Присваиваем параметры для тегов <li>.
      *
-     * @param object $categorys
+     * @param object $categories
      * @param object $category
      * @return array
      */
-    private function li($categorys, $category)
+    private function li($categories, $category)
     {
         $request = Yii::$app->request;
-        $pathInfo = '/' . $request->pathInfo;
-        $createUrl = $this->createUrl($categorys, $category->id);
-        $substrCount = substr_count($request->absoluteUrl, $request->hostInfo . $createUrl . '/');
+        $url = $this->createUrl($categories, $category->id);
+        $currentUrl = '/' . $request->pathInfo;
+        $parentUrl = substr_count($request->absoluteUrl, $request->hostInfo . $url . '/');
 
-        if (!empty($substrCount) || $pathInfo == $createUrl || $pathInfo == '/index') {
-            if ($category->lvl == 1) {
-                $optionsTag = $this->glueArray($this->LI_active_main, $this->LI_has_nesting_main);
+        $main = $category->lvl == 1;
+        $notNesting = $category->lft + 1 == $category->rgt;
+        $active = $parentUrl || $url == $currentUrl || '/index' == $currentUrl;
+
+        if ($notNesting) {
+            if ($main) {
+                if ($active) {
+                    $optionsTag = $this->glueArray($this->LI_lonely_main, $this->LI_active_main);
+                } else {
+                    $optionsTag = $this->LI_lonely_main;
+                }
             } else {
-                $optionsTag = $this->glueArray($this->LI_active, $this->LI_has_nesting);
-            }
-        } elseif ($category->lft + 1 == $category->rgt) {
-            if ($category->lvl == 1) {
-                $optionsTag = $this->LI_lonely_main;
-            } else {
-                $optionsTag = $this->LI_lonely;
+                if ($active) {
+                    $optionsTag = $this->glueArray($this->LI_lonely, $this->LI_active);
+                } else {
+                    $optionsTag = $this->LI_lonely;
+                }
+
             }
         } else {
-            if ($category->lvl == 1) {
-                $optionsTag = $this->LI_has_nesting_main;
+            if ($main) {
+                if ($active) {
+                    $optionsTag = $this->glueArray($this->LI_has_nesting_main, $this->LI_active_main);
+                } else {
+                    $optionsTag = $this->LI_has_nesting_main;
+                }
             } else {
-                $optionsTag = $this->LI_has_nesting;
+                if ($active) {
+                    $optionsTag = $this->glueArray($this->LI_has_nesting, $this->LI_active);
+                } else {
+                    $optionsTag = $this->LI_has_nesting;
+                }
             }
         }
         return $optionsTag;
@@ -155,17 +175,20 @@ class Menu extends Widget
     /**
      * Склеиваем параметры у элементов с одинаковым ключом.
      * К примеру $LI_active_main наследует параметры от $LI_has_nesting_main.
+     *
+     * @param array $main Основные атрибуты пункта меню.
+     * @param array $active Атрибуты пункта меню, если активен.
+     * @return array
      */
-    private function glueArray($firstArray, $secondArray)
+    private function glueArray($main, $active)
     {
         $optionsTag = [];
 
-        $oneArr = array_keys($firstArray);
-        $twoArr = array_keys($secondArray);
-        $sumArr = array_merge(array_flip($oneArr), array_flip($twoArr));
+        $mainKey = array_keys($main);
+        $activeKey = array_keys($active);
+        $sumArr = array_merge(array_flip($mainKey), array_flip($activeKey));
         foreach ($sumArr as $key => $notNeed) {
-            $optionsTag[$key] = ArrayHelper::getValue($this->LI_active_main, $key) . ' '
-                . ArrayHelper::getValue($this->LI_has_nesting_main, $key);
+            $optionsTag[$key] = ArrayHelper::getValue($main, $key) . ' ' . ArrayHelper::getValue($active, $key);
         }
         return $optionsTag;
     }
@@ -205,11 +228,18 @@ class Menu extends Widget
      */
     private function icon($category)
     {
-        $nameTag = null;
-        if ($category->lft + 1 != $category->rgt) {
-            $nameTag = $this->A_icon_in_name;
+        $main = $category->lvl == 1;
+        $nesting = $category->lft + 1 != $category->rgt;
+
+        $icon = null;
+        if ($nesting) {
+            if ($main) {
+                $icon = $this->A_icon_has_nesting_main;
+            } else {
+                $icon = $this->A_icon_has_nesting;
+            }
         }
-        return $nameTag;
+        return $icon;
     }
 
     /**
