@@ -22,13 +22,13 @@
 Для установки запустите
 
 ```
-$ php composer.phar require laker-ls/yii2-nested-set-menu "~1.1.1"
+$ php composer.phar require laker-ls/yii2-nested-set-menu "~1.2.0"
 ```
 
 или добавьте в `composer.json` в раздел `require` следующую строку
 
 ```
-"laker-ls/yii2-nested-set-menu": "~1.1.1"
+"laker-ls/yii2-nested-set-menu": "~1.2.0"
 ```
 
 > Смотрите [список изменений](https://github.com/laker-ls/yii2-nested-set-menu/blob/master/CHANGE.md) для подробной информации о версиях.
@@ -39,43 +39,81 @@ $ php composer.phar require laker-ls/yii2-nested-set-menu "~1.1.1"
 Обязательными полями в базе данных являются: `id`, `lft`, `rgt`, `lvl`, `name`, `url`.
 
 Остальные параметры являются не обязательными и используются для указания атрибутов тегам, к примеру `class`, `style` и другие.
-Для того, что бы присвоить к вложенному пункту меню иконку, передайте строкой классы иконки. Подробнее о каждом параметре смотрите в `src/Menu.php`.
+Для того, что бы присвоить к вложенному пункту меню иконку, передайте строкой классы иконки.
+
+Пример использования виджета с вложенными пунктами меню:
+```php
+use lakerLS\nestedSet\Menu;
+           
+echo Menu::widget([
+    'allCategories' => $allCategory,
+    'options' => [
+        'main' => [
+            'ul' => ['class' => 'navbar-nav mr-auto', 'style' => 'margin-top: 20px'],
+            'lonely' => [
+                'li' => ['class' => 'nav-item'],
+                'a' => ['class' => 'nav-link'],
+            ],
+            'hasNesting' => [
+                'li' => ['class' => 'nav-item dropdown'],
+                'a' => ['class' => 'nav-link dropdown-toggle'],
+                'icon' => 'fa fa-arrow-bottom'
+            ],
+            'active' => ['class' => 'active'],
+        ],
+        'nested' => [
+            'ul' => ['class' => 'dropdown-menu', 'data-toggle' => 'example'],
+            'lonely' => [
+                'li' => ['class' => 'dropdown-item'],
+                'a' => ['class' => 'dropdown-link'],
+            ],
+            'hasNesting' => [
+                'li' => ['class' => 'dropdown-item dropdown'],
+                'a' => ['class' => 'dropdown-link dropdown'],
+                'icon' => 'fa fa-arrow-right'
+            ],
+            'active' => ['class' => 'active', 'id' => 'example']
+        ],
+    ],
+]);
+```
+
+Пример использования виджета без вложенных пунктов меню:
 
 ```php
 use lakerLS\nestedSet\Menu;
            
 echo Menu::widget([
     'allCategories' => $allCategory,
-
-    'UL_all' => [
-        'class' => 'sf-menu clearfix unstyled-all',
-        'id' => 'header-navigation',
+    'options' => [
+        'main' => [
+            'ul' => ['class' => 'navbar-nav mr-auto', 'style' => 'margin-top: 20px'],
+            'lonely' => [
+                'li' => ['class' => 'nav-item'],
+                'a' => ['class' => 'nav-link'],
+            ],
+            'hasNesting' => [
+                'li' => ['class' => 'nav-item dropdown'],
+                'a' => ['class' => 'nav-link dropdown-toggle'],
+                'icon' => 'fa fa-arrow-bottom'
+            ],
+            'active' => ['class' => 'active'],
+        ],
     ],
-    'UL_nested_one' => [
-        'class' => 'sub-menu',
-        'style' => 'display: none',
-    ],
-    'UL_nested_more' => [
-        'class' => 'sub-menu',
-        'style' => 'display: none',
-    ],
-    'LI_lonely_main' => [
-        'class' => 'menu-item',
-    ],
-    'LI_has_nesting_main' => [
-        'class' => 'menu-item menu-item-type',
-    ],
-    'LI_lonely' => [
-        'class' => 'menu-item-type-post_type',
-    ],
-    'A_lonely' => [
-            'class' => 'sf-with-ul',
-    ],
-    
-    'A_icon_has_nesting_main' => 'angle-down',
-    'A_icon_has_nesting' => 'angle-right',
 ]);
 ```
+
+`main` - меню первого уровня, не вложенное в какие-либо категории. <br />
+`nested` - меню второго или ниже уровня, вложенное.
+
+`lonely` - пункт меню, который НЕ имеет вложенных в него категорий. <br />
+`hasNesting` - пункт меню, который имеет вложенные в него категории.
+
+`active` - указываем параметры для активного пункта меню, которые применятся к тегу `li`. Атрибуты наследуются
+от тега `li`, не нужно дублировать атрибуты в том числе и классы в параметре `active`.
+
+Параметры для `ul`, `li`, `a`, `active` передаются массивом. <br />
+Параметры для `icon` передаются строкой.
 
 ## Лицензия
 

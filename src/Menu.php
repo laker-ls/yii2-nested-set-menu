@@ -16,57 +16,63 @@ use yii\helpers\Html;
 class Menu extends Widget
 {
     /**
-     * Передаем выборку из базы данных в которой лежат пункты меню.
-     * Обязательные поля в таблице: id, lft, rgt, lvl, name, url.
-     * Поле url должно содержать относительный путь. Полный путь будет сформирован.
-     * @param object $allCategory
+     *  Передаем выборку из базы данных в которой лежат пункты меню.
+     *  Обязательные поля в таблице: `id`, `lft`, `rgt`, `lvl`, `name`, `url`.
+     *  Поле `url` должно содержать относительный путь. Полный путь будет сформирован.
+     *
+     *  @param object $allCategory
      */
     public $allCategories;
 
     /**
-     * В параметрах идущих ниже необходимо указать все необходимые классы для тегов <ul>, <li>, <a>.
+     *  Передаем все параметры для тегов. Передавать можно как `class`, так и любые атрибуты тега.
+     *  Если ваше меню не будет иметь вложенность, то параметр `nested` нет необходимости указывать.
+     *  ПРИМЕР:
+     *
+     *  'options' => [
+     *      'main' => [
+     *          'ul' => ['class' => 'navbar-nav mr-auto', 'style' => 'margin-top: 20px'],
+     *          'lonely' => [
+     *              'li' => ['class' => 'nav-item'],
+     *              'a' => ['class' => 'nav-link'],
+     *          ],
+     *          'hasNesting' => [
+     *              'li' => ['class' => 'nav-item dropdown'],
+     *              'a' => ['class' => 'nav-link dropdown-toggle'],
+     *              'icon' => 'fa fa-arrow-bottom'
+     *          ],
+     *          'active' => ['class' => 'active'],
+     *      ],
+     *      'nested' => [
+     *          'ul' => ['class' => 'dropdown-menu', 'data-toggle' => 'example'],
+     *          'lonely' => [
+     *              'li' => ['class' => 'dropdown-item'],
+     *              'a' => ['class' => 'dropdown-link'],
+     *          ],
+     *          'hasNesting' => [
+     *              'li' => ['class' => 'dropdown-item dropdown'],
+     *              'a' => ['class' => 'dropdown-link dropdown'],
+     *              'icon' => 'fa fa-arrow-right'
+     *          ],
+     *          'active' => ['class' => 'active', 'id' => 'example']
+     *      ],
+     *  ],
+     *
+     *  `main` - меню первого уровня, не вложенный в какие-либо категории.
+     *  `nested` - меню второго или ниже уровня, вложенное.
+     *
+     *  `lonely` - пункт меню, который НЕ имеет вложенных в него категорий.
+     *  `hasNesting` - пункт меню, который имеет вложенные в него категории.
+     *
+     *  `active` - указаываем параметры для активного пункта меню, которые применятся к тегу `li`. Атрибуты наследуются
+     *  от тега `li`, не нужно дублировать атрибуты в том числе и классы в параметре `active`.
+     *
+     *  Параметры для `ul`, `li`, `a`, `active` передаются массивом.
+     *  Параметры для `icon` передаются строкой.
+     *
+     *  @var array
      */
-
-    // оборачивает всю конструкцию
-    public $UL_all = [];
-
-    // Пункт меню вложенный на один уровень.
-    public $UL_nested_one = [];
-
-    // Пункт меню вложенный на два и более уровней.
-    public $UL_nested_more = [];
-
-    // Пункт меню без вложеностей, корневой.
-    public $LI_lonely_main = [];
-    public $A_lonely_main = [];
-
-    // Пункт меню с вложенностями, корневой.
-    public $LI_has_nesting_main = [];
-    public $A_has_nesting_main = [];
-
-    // Пункт меню вложенный, не содержит вложеностей.
-    public $LI_lonely = [];
-    public $A_lonely = [];
-
-    // Пункт меню вложенный, содержит вложенности.
-    public $LI_has_nesting = [];
-    public $A_has_nesting = [];
-
-    // Активный пункт меню, корневой. Указывать только дополнительные параметры необходимые для активного пункта,
-    // всё остальное будет наследовано от $LI_has_nesting_main.
-    public $LI_active_main = [];
-
-    // Активный пункт меню, вложенный. Указывать только дополнительные параметры необходимые для активного пункта,
-    // всё остальное будет наследовано от $LI_has_nesting.
-    public $LI_active = [];
-
-    // Добавить иконку к корневому пункту меню, который имеет вложенности.
-    // Необходимо передать строкой классы иконки.
-    public $A_icon_has_nesting_main = '';
-
-    // Добавить иконку к вложенному пункту меню, который так же имеет вложенности.
-    // Необходимо передать строкой классы иконки.
-    public $A_icon_has_nesting = '';
+    public $options = [];
 
     /**
      * Вывод пунктов меню.
@@ -91,7 +97,7 @@ class Menu extends Widget
                 }
             }
             echo Html::beginTag('li', $this->li($this->allCategories, $category)) . "\n";
-            echo Html::tag('a', $category->name . '<i class="' . $this->icon($category) . '"></i>',
+            echo Html::tag('a', $category->name . $this->icon($category),
                     $this->a($this->allCategories, $category)) . "\n";
 
             $lvl = $category->lvl;
@@ -110,11 +116,9 @@ class Menu extends Widget
     private function ul($value, $lvl = null)
     {
         if ($value == 'main') {
-            $optionsTag = $this->UL_all;
-        } elseif ($value == 'nested' && $lvl >= 3) {
-            $optionsTag = $this->UL_nested_more;
+            $optionsTag = $this->val('main.ul');
         } elseif ($value == 'nested') {
-            $optionsTag = $this->UL_nested_one;
+            $optionsTag = $this->val('nested.ul');
         } else {
             $optionsTag = false;
         }
@@ -142,30 +146,30 @@ class Menu extends Widget
         if ($notNesting) {
             if ($main) {
                 if ($active) {
-                    $optionsTag = $this->glueArray($this->LI_lonely_main, $this->LI_active_main);
+                    $optionsTag = $this->glueArray($this->val('main.lonely.li'), $this->val('main.active'));
                 } else {
-                    $optionsTag = $this->LI_lonely_main;
+                    $optionsTag = $this->val('main.lonely.li');
                 }
             } else {
                 if ($active) {
-                    $optionsTag = $this->glueArray($this->LI_lonely, $this->LI_active);
+                    $optionsTag = $this->glueArray($this->val('nested.lonely.li'), $this->val('nested.active'));
                 } else {
-                    $optionsTag = $this->LI_lonely;
+                    $optionsTag = $this->val('nested.lonely.li');
                 }
 
             }
         } else {
             if ($main) {
                 if ($active) {
-                    $optionsTag = $this->glueArray($this->LI_has_nesting_main, $this->LI_active_main);
+                    $optionsTag = $this->glueArray($this->val('main.hasNesting.li'), $this->val('main.active'));
                 } else {
-                    $optionsTag = $this->LI_has_nesting_main;
+                    $optionsTag = $this->val('main.hasNesting.li');
                 }
             } else {
                 if ($active) {
-                    $optionsTag = $this->glueArray($this->LI_has_nesting, $this->LI_active);
+                    $optionsTag = $this->glueArray($this->val('nested.hasNesting.li'), $this->val('nested.active'));
                 } else {
-                    $optionsTag = $this->LI_has_nesting;
+                    $optionsTag = $this->val('nested.hasNesting.li');
                 }
             }
         }
@@ -204,17 +208,19 @@ class Menu extends Widget
     {
         $createUrl = $this->createUrl($categorys, $category->id);
 
+        $test = ArrayHelper::getValue($this->options, 'main.hasNesting.a');
+
         if ($category->lft + 1 == $category->rgt) {
             if ($category->lvl == 1) {
-                $optionsTag = array_merge($this->A_lonely_main, ['href' => $createUrl]);
+                $optionsTag = array_merge($this->val('main.lonely.a'), ['href' => $createUrl]);
             } else {
-                $optionsTag = array_merge($this->A_lonely, ['href' => $createUrl]);
+                $optionsTag = array_merge($this->val('nested.lonely.a'), ['href' => $createUrl]);
             }
         } else {
             if ($category->lvl == 1) {
-                $optionsTag = array_merge($this->A_has_nesting_main, ['href' => $createUrl]);
+                $optionsTag = array_merge($this->val('main.hasNesting.a'), ['href' => $createUrl]);
             } else {
-                $optionsTag = array_merge($this->A_has_nesting, ['href' => $createUrl]);
+                $optionsTag = array_merge($this->val('nested.hasNesting.a'), ['href' => $createUrl]);
             }
         }
         return $optionsTag;
@@ -234,12 +240,19 @@ class Menu extends Widget
         $icon = null;
         if ($nesting) {
             if ($main) {
-                $icon = $this->A_icon_has_nesting_main;
+                $icon = ArrayHelper::getValue($this->options, 'main.hasNesting.icon');
             } else {
-                $icon = $this->A_icon_has_nesting;
+                $icon = ArrayHelper::getValue($this->options, 'nested.hasNesting.icon');
             }
         }
-        return $icon;
+
+        if (!empty($icon)) {
+            $prettyIcon = '<i class="' . $icon . '"></i>';
+        } else {
+            $prettyIcon = null;
+        }
+
+        return $prettyIcon;
     }
 
     /**
@@ -276,5 +289,16 @@ class Menu extends Widget
             $array[$current->id] = $finish_url;
         }
         return $array[$id];
+    }
+
+    /**
+     * Функция, для получения значений массива options. Сокращенный синтаксис ArrayHelper'а.
+     *
+     * @param $key
+     * @return mixed
+     */
+    public function val($key)
+    {
+        return ArrayHelper::getValue($this->options, $key, []);
     }
 }
