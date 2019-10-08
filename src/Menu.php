@@ -262,7 +262,7 @@ class Menu extends Widget
      * @param integer $id
      * @return array
      */
-    public function createUrl($categorys, $id)
+    private function createUrl($categorys, $id)
     {
         $previous = $categorys['0'];
         $path = null;
@@ -297,7 +297,7 @@ class Menu extends Widget
      * @param $key
      * @return mixed
      */
-    public function val($key)
+    private function val($key)
     {
         return ArrayHelper::getValue($this->options, $key, []);
     }
