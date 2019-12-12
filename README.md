@@ -61,7 +61,10 @@ echo Menu::widget([
                 'a' => ['class' => 'nav-link dropdown-toggle'],
                 'icon' => 'fa fa-arrow-bottom'
             ],
-            'active' => ['class' => 'active'],
+            'active' => [
+                'li' => ['class' => 'active'],
+                'a' => ['class' => 'maybe-necessary-a-instead-of-li',
+            ]
         ],
         'nested' => [
             'ul' => ['class' => 'dropdown-menu', 'data-toggle' => 'example'],
@@ -74,7 +77,10 @@ echo Menu::widget([
                 'a' => ['class' => 'dropdown-link dropdown'],
                 'icon' => 'fa fa-arrow-right'
             ],
-            'active' => ['class' => 'active', 'id' => 'example']
+            'active' => [
+                'li' => ['class' => 'active'],
+                'a' => ['class' => 'maybe-necessary-a-instead-of-li',
+            ]
         ],
     ],
 ]);
@@ -99,7 +105,9 @@ echo Menu::widget([
                 'a' => ['class' => 'nav-link dropdown-toggle'],
                 'icon' => 'fa fa-arrow-bottom'
             ],
-            'active' => ['class' => 'active'],
+            'active' => [
+                'li' => ['class' => 'active'],
+            ]
         ],
     ],
 ]);
@@ -111,8 +119,8 @@ echo Menu::widget([
 `lonely` - пункт меню, который НЕ имеет вложенных в него категорий. <br />
 `hasNesting` - пункт меню, который имеет вложенные в него категории.
 
-`active` - указываем параметры для активного пункта меню, которые применятся к тегу `li`. Атрибуты наследуются
-от тега `li`, не нужно дублировать атрибуты в том числе и классы в параметре `active`.
+`active` - указываем дополнительные параметры для активного пункта меню, которые применятся к тегу `li` и `a`.
+Основные параметры наследуются.
 
 Параметры для `ul`, `li`, `a`, `active` передаются массивом. <br />
 Параметры для `icon` передаются строкой.
