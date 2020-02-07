@@ -2,9 +2,9 @@
 
 namespace lakerLS\nestedSet;
 
+use Exception;
 use Yii;
 use yii\base\Widget;
-use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
@@ -22,6 +22,11 @@ class Menu extends Widget
      * Поле `url` должно содержать относительный путь. Полный путь будет сформирован.
      */
     public $allCategories;
+
+    /**
+     * @var $beginLvl int уровень вложенности, с которой начинается построения пунктов меню.
+     */
+    public $beginLvl = 1;
 
     /**
      * @var $options array который содержит все параметры для тегов.
@@ -84,31 +89,60 @@ class Menu extends Widget
      */
     public function run()
     {
-        $lvl = 1;
-        $count = 'first';
-
-        echo Html::beginTag('ul', $this->ul('main')) . "\n";
-        foreach ($this->allCategories as $category) {
-            if ($lvl == $category->lvl && $count == 'some') {
-                echo Html::endTag('li') . "\n";
-            }
-            if ($lvl < $category->lvl) {
-                echo Html::beginTag('ul', $this->ul('nested')) . "\n";
-            }
-            if ($lvl > $category->lvl) {
-                for ($cycle = $lvl - $category->lvl; $cycle; $cycle--) {
-                    echo Html::endTag('li') . "\n";
-                    echo Html::endTag('ul') . "\n";
-                }
-            }
-            echo Html::beginTag('li', $this->optionsTag($this->allCategories, $category, 'li')) . "\n";
-            echo Html::tag('a', $category->name . $this->icon($category),
-                    $this->optionsTag($this->allCategories, $category, 'a')) . "\n";
-
-            $lvl = $category->lvl;
-            $count = 'some';
+        if ($this->allCategories[0]->lvl != $this->beginLvl) {
+            throw new Exception('Уровень вложенности первого элемента "lvl" не совпадает с "beginLvl".');
         }
-        echo Html::endTag('ul');
+        echo Html::beginTag('ul', $this->ul('main')) . PHP_EOL;
+            echo $this->createList($this->allCategories, $this->beginLvl);
+        echo Html::endTag('ul') . PHP_EOL;
+    }
+
+    /**
+     * Создание списка из категорий.
+     *
+     * @param $categories array категорий из которых необходимо построить список
+     * @param $lvl integer указывающее уровень вложенности
+     */
+    private function createList($categories, $lvl)
+    {
+        foreach ($categories as $category) {
+            if ($category->lvl == $lvl) {
+                echo Html::beginTag('li', $this->optionsTag($this->allCategories, $category, 'li'));
+                    echo Html::tag(
+                            'a',
+                            $category->name . $this->icon($category),
+                            $this->optionsTag($this->allCategories, $category, 'a')
+                        );
+                    if ($category->lft +1 != $category->rgt) {
+                        echo PHP_EOL . Html::beginTag('ul', $this->ul('nested')) . PHP_EOL;
+                            $children = $this->childCategories($categories, $category->lft, $category->rgt);
+                            $this->createList($children, ($category->lvl + 1));
+                        echo Html::endTag('ul') . PHP_EOL;
+                    }
+                echo Html::endTag('li') . PHP_EOL;
+                $lvl = $category->lvl;
+            }
+        }
+    }
+
+    /**
+     * Получение дочерних категорий.
+     *
+     * @param $categories array категорий, в которой производится поиск
+     * @param $lft integer
+     * @param $rgt integer
+     * @return array
+     */
+    private function childCategories($categories, $lft, $rgt)
+    {
+        $isNested = [];
+        foreach ($categories as $category) {
+            if ($category->lft > $lft && $category->rgt < $rgt) {
+                $isNested[] = $category;
+            }
+        }
+
+        return $isNested;
     }
 
     /**
@@ -137,8 +171,8 @@ class Menu extends Widget
     /**
      * Присваивание параметров для тегов `li` и `a`.
      *
-     * @param $categories array содержит все объекты категорий.
-     * @param $category object текущей категория.
+     * @param $categories array содержит все объекты категорий
+     * @param $category object текущей категория
      * @param $tag string может иметь значения `li` или `a`
      * @return array|mixed
      */
@@ -228,8 +262,8 @@ class Menu extends Widget
      * Объединение параметров у элементов с одинаковыми ключами.
      * К примеру $LI_active_main наследует параметры от $LI_has_nesting_main.
      *
-     * @param array|null $main Основные атрибуты пункта меню.
-     * @param array|null $active Атрибуты пункта меню, если активен.
+     * @param array|null $main Основные атрибуты пункта меню
+     * @param array|null $active Атрибуты пункта меню, если активен
      * @return array
      */
     private function glueArray($main, $active)
@@ -249,7 +283,7 @@ class Menu extends Widget
     /**
      * Формирование полного адреса для пунктов меню.
      *
-     * @param $categories array содержит все объекты категорий.
+     * @param $categories array содержит все объекты категорий
      * @param $id integer текущей категории
      * @return array
      */

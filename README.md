@@ -8,9 +8,7 @@
 [![License](https://poser.pugx.org/laker-ls/yii2-nested-set-menu/license)](https://packagist.org/packages/laker-ls/yii2-nested-set-menu)
 [![Total Downloads](https://poser.pugx.org/laker-ls/yii2-nested-set-menu/downloads)](https://packagist.org/packages/laker-ls/yii2-nested-set-menu)
 
-Это расширение является виджетом для yii2. Используется для реализации динамической системы пунктов меню.
-Выводит список пунктов меню, используя дерево каталогов Nested Set. Формирование происходит средствами PHP без дополнительных запросов к базе данных.
-Вложенность не ограничена. Подходит для любых шаблонов.
+Это расширение является виджетом для yii2. Выводит список пунктов меню, используя дерево каталогов Nested Set. Вложенность не ограничена.
 
 Есть возможность указать любые атрибуты для всех тегов, к примеру `class`, `style` и другие, так же есть возможность указать иконку для пунтка меню, который имеет вложенности.
 
@@ -22,13 +20,13 @@
 Для установки запустите
 
 ```
-$ php composer.phar require laker-ls/yii2-nested-set-menu "~2.1.0"
+$ php composer.phar require laker-ls/yii2-nested-set-menu "~2.2.0"
 ```
 
 или добавьте в `composer.json` в раздел `require` следующую строку
 
 ```
-"laker-ls/yii2-nested-set-menu": "~2.1.0"
+"laker-ls/yii2-nested-set-menu": "~2.2.0"
 ```
 
 > Смотрите [список изменений](https://github.com/laker-ls/yii2-nested-set-menu/blob/master/CHANGE.md) для подробной информации о версиях.
@@ -49,6 +47,7 @@ use lakerLS\nestedSet\Menu;
            
 echo Menu::widget([
     'allCategories' => $allCategory,
+    'beginLvl' => 1,
     'options' => [
         'main' => [
             'ul' => ['class' => 'navbar-nav mr-auto', 'style' => 'margin-top: 20px'],
